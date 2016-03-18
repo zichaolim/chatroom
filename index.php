@@ -1,7 +1,6 @@
-<?php session_start(); //die($_SESSION["role"].'y'.$_SESSION["guest"]); 
+<?php session_start(); 
 if( isset($_SESSION["role"]) && $_SESSION["role"] ==0) {header("location:chat.php?err=login");}
-
-//if ( isset($_SESSION["role"]) && $_SESSION["role"] != 1 ){header("location:chat.php?err=yes");}?>
+?>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
@@ -51,6 +50,7 @@ if( isset($_SESSION["role"]) && $_SESSION["role"] ==0) {header("location:chat.ph
 			$('#data').val('');
 			// tell server to execute 'sendchat' and send along one parameter
 			socket.emit('sendchat', {message:messages,idasdds:idasdd});
+
 			socket.emit('get message',function(data){
 				$("#viewMessage > tbody").html("");
 
@@ -81,9 +81,7 @@ if( isset($_SESSION["role"]) && $_SESSION["role"] ==0) {header("location:chat.ph
 
 		$('.approve').each(function(index) {
 			$(this).on("click", function(){
-			// $(':checkbox:checked').each(function(i){
-	  //       	alert($(this).val());
-	  //       });
+	
 		        if( $(this).prop('checked')===true ){
 		        	guestVal = 'a/'+ $(this).val();
 		        	//alert($(this).val());
@@ -91,9 +89,6 @@ if( isset($_SESSION["role"]) && $_SESSION["role"] ==0) {header("location:chat.ph
 		        	guestVal = 'b/'+ $(this).val();
 		        }
 		       
-		  
-			// $("input[type=checkbox]:checked").each(function() {
-	       		
 	       		var token ='';
 	       			
 	   			$.ajax({
@@ -137,9 +132,20 @@ if( isset($_SESSION["role"]) && $_SESSION["role"] ==0) {header("location:chat.ph
 		$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
 		height += 100;
 		$('#conversation').animate({scrollTop: height});
+
+		socket.emit('get message',function(data){
+			$("#viewMessage > tbody").html("");
+
+			if(data){								
+				$("#viewMessage > tbody").append(data);								
+			}
+		});
+		var mySound = new sound("newMsg.wav");
 	});
 
 	socket.on('updateguest', function (data) {
+		
+   		var mySound = new sound("newguest.wav");
 		$('#manageGuest > thead tr:first').after(data);		
 	});
 
@@ -155,6 +161,16 @@ if( isset($_SESSION["role"]) && $_SESSION["role"] ==0) {header("location:chat.ph
 			}
 		});
 	});
+
+	function sound(src) {
+	    this.sound = document.createElement("audio");
+	    this.sound.src = src;
+	    this.sound.setAttribute("preload", "auto");
+	    this.sound.setAttribute("controls", "none");
+	    this.sound.style.display = "none";
+	    document.body.appendChild(this.sound);
+	    this.sound.play();	   
+	}
 
 	function deletechat(){
 		var token ='';
